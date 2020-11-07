@@ -9,6 +9,11 @@ namespace TomTelegramBot.SQLite
         public string login { get; set; }
         public string password { get; set; }
 
+        public override string ToString()
+        {
+            return chatId + ": " + serverName;
+        }
+
         public override bool Equals(object obj)
         {
             return obj is User user &&

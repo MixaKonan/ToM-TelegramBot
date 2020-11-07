@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using TomTelegramBot.Bot;
 using TomTelegramBot.Video;
@@ -14,7 +15,7 @@ namespace TomTelegramBot.ToM
     public class Handler
     {
         private User _user;
-        private static readonly Dictionary<User, WebSocket> UserSocketPairs = new Dictionary<User, WebSocket>();
+        private static readonly ConcurrentDictionary<User, WebSocket> UserSocketPairs = new ConcurrentDictionary<User, WebSocket>();
         private static readonly StompMessageSerializer Serializer = new StompMessageSerializer();
 
         public void SubscribeOnStart(User user)
@@ -28,7 +29,7 @@ namespace TomTelegramBot.ToM
             webSocket.OnClose += WebSocketOnClose;
             webSocket.OnError += WebSocketOnError;
 
-            UserSocketPairs.Add(user, webSocket);
+            UserSocketPairs.TryAdd(user, webSocket);
 
             Connect(user, webSocket);
         }
@@ -41,14 +42,14 @@ namespace TomTelegramBot.ToM
 
             try
             {
-                UserSocketPairs.Add(user, webSocket);
-                Subscribe_(user, webSocket);
+                UserSocketPairs.TryAdd(user, webSocket);
+                Subscribe(user, webSocket);
             }
 
             catch(ArgumentException)
             {
-                var Pair = UserSocketPairs.Where(pair => pair.Key.chatId == user.chatId && pair.Key.serverName == user.serverName).First();
-                Subscribe_(Pair.Key, Pair.Value);
+                var Pair = UserSocketPairs.First(pair => pair.Key.chatId == user.chatId && pair.Key.serverName == user.serverName);
+                Subscribe(Pair.Key, Pair.Value);
             }
 
             webSocket.OnMessage += WebSocketOnMessage;
@@ -59,7 +60,7 @@ namespace TomTelegramBot.ToM
             
         }
 
-        private void Subscribe_(User user, WebSocket webSocket)
+        private static void Subscribe(User user, WebSocket webSocket)
         {
             if (Database.IsPresent(user))
             {
@@ -90,14 +91,14 @@ namespace TomTelegramBot.ToM
             }
         }
 
-        private bool ConnectionIsAlive(User user)
+        private static bool ConnectionIsAlive(User user)
         {
-            UserSocketPairs.TryGetValue(user, out WebSocket socket);
+            UserSocketPairs.TryGetValue(user, out var socket);
 
-            return socket.IsAlive == true ? true : false;
+            return socket != null && (socket.IsAlive == true ? true : false);
         }
 
-        private void Connect(User user, WebSocket webSocket)
+        private static void Connect(User user, WebSocket webSocket)
         {
             webSocket.SetCredentials(user.login, user.password, true);
             webSocket.Connect();
@@ -115,7 +116,7 @@ namespace TomTelegramBot.ToM
         {
             Console.WriteLine($"---------------\n{DateTime.Now}: Connection has been closed. Status code: {e.Code}");
             
-            TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: e.Reason);
+            TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: e.ToString());
         }
 
         private void WebSocketOnError(object sender, ErrorEventArgs e)

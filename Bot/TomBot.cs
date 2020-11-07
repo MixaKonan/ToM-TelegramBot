@@ -11,7 +11,7 @@ namespace TomTelegramBot.Bot
     public static class TomBot
     {
         public static readonly TelegramBotClient BotClient =
-            new TelegramBotClient("token");
+            new TelegramBotClient("1445049367:AAEi-hHJAo_YNEtAMeRRF79DDBguRtVXqmg");
 
         private const int ServerName = 1;
         private const int Login = 2;
@@ -28,9 +28,10 @@ namespace TomTelegramBot.Bot
             if (BotClient.IsReceiving)
             {
                 Console.WriteLine("Bot is now receiving messages.");
-                
+
                 foreach (var user in Database.GetUsers())
                 {
+                    Console.WriteLine(user.ToString());
                     var handler = new Handler();
 
                     var thread = new Thread(() => handler.SubscribeOnStart(user));
