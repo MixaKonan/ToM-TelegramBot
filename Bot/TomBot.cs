@@ -11,7 +11,7 @@ namespace TomTelegramBot.Bot
     public static class TomBot
     {
         public static readonly TelegramBotClient BotClient =
-            new TelegramBotClient("1445049367:AAEi-hHJAo_YNEtAMeRRF79DDBguRtVXqmg");
+            new TelegramBotClient("token");
 
         private const int ServerName = 1;
         private const int Login = 2;
