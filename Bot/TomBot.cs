@@ -11,7 +11,7 @@ namespace TomTelegramBot.Bot
     public static class TomBot
     {
         public static readonly TelegramBotClient BotClient =
-            new TelegramBotClient("token");
+            new TelegramBotClient("1445049367:AAEi-hHJAo_YNEtAMeRRF79DDBguRtVXqmg");
 
         private const int ServerName = 1;
         private const int Login = 2;
@@ -57,8 +57,8 @@ namespace TomTelegramBot.Bot
             if (messageText.StartsWith("/help"))
             {
                 BotClient.SendTextMessageAsync(e.Message.Chat.Id,
-                    "You can subscribe by using '/subscribe [server] [login] [password]'\n" +
-                    "And unsubscribe by '/unsubscribe [server]'\nFor example, /subscribe https://myserver.ru admin password, /unsubscribe https://myserver.ru");
+                    "You can subscribe by using:\n\n/subscribe [server] [login] [password].\n\n" +
+                    "And unsubscribe by:\n\n/unsubscribe [server].\n\nFor example,\n\n /subscribe https://myserver.ru admin password,\n\n  /unsubscribe https://myserver.ru.");
             }
         }
 

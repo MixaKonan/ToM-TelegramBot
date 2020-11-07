@@ -7,6 +7,7 @@ using StompLibrary;
 using WebSocketSharp;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TomTelegramBot.ToM
 {
@@ -18,6 +19,8 @@ namespace TomTelegramBot.ToM
 
         public void SubscribeOnStart(User user)
         {
+            _user = user;
+
             using var webSocket = new WebSocket(user.serverName);
 
             webSocket.OnMessage += WebSocketOnMessage;
@@ -27,7 +30,7 @@ namespace TomTelegramBot.ToM
 
             UserSocketPairs.Add(user, webSocket);
 
-            Subscribe(user, webSocket);
+            Connect(user, webSocket);
         }
 
         public void EstablishSubscription(User user)
@@ -36,13 +39,28 @@ namespace TomTelegramBot.ToM
 
             _user = user;
 
-            UserSocketPairs.Add(user, webSocket);
+            try
+            {
+                UserSocketPairs.Add(user, webSocket);
+                Subscribe_(user, webSocket);
+            }
+
+            catch(ArgumentException)
+            {
+                var Pair = UserSocketPairs.Where(pair => pair.Key.chatId == user.chatId && pair.Key.serverName == user.serverName).First();
+                Subscribe_(Pair.Key, Pair.Value);
+            }
 
             webSocket.OnMessage += WebSocketOnMessage;
             webSocket.OnOpen += WebSocketOnOpen;
             webSocket.OnClose += WebSocketOnClose;
             webSocket.OnError += WebSocketOnError;
 
+            
+        }
+
+        private void Subscribe_(User user, WebSocket webSocket)
+        {
             if (Database.IsPresent(user))
             {
                 if (ConnectionIsAlive(user))
@@ -53,7 +71,7 @@ namespace TomTelegramBot.ToM
 
                 else
                 {
-                    Subscribe(user, webSocket);
+                    Connect(user, webSocket);
                 }
             }
 
@@ -62,7 +80,7 @@ namespace TomTelegramBot.ToM
                 try
                 {
                     Database.WriteUser(user);
-                    Subscribe(user, webSocket);
+                    Connect(user, webSocket);
                 }
 
                 catch (Exception exception)
@@ -79,7 +97,7 @@ namespace TomTelegramBot.ToM
             return socket.IsAlive == true ? true : false;
         }
 
-        private void Subscribe(User user, WebSocket webSocket)
+        private void Connect(User user, WebSocket webSocket)
         {
             webSocket.SetCredentials(user.login, user.password, true);
             webSocket.Connect();
