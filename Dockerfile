@@ -1,16 +1,17 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.2 AS build-env
-WORKDIR /app
+# https://hub.docker.com/_/microsoft-dotnet-core
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
+WORKDIR /source
 
-# Copy csproj and restore as distinct layers
-COPY *.csproj ./
+# copy csproj and restore as distinct layers
+COPY *.csproj .
 RUN dotnet restore
 
-# Copy everything else and build
-COPY . ./
-RUN dotnet publish -c Release -o out
+# copy and publish app and libraries
+COPY . .
+RUN dotnet publish -c release -o /app --no-restore
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2
+# final stage/image
+FROM mcr.microsoft.com/dotnet/core/runtime:3.1
 WORKDIR /app
-COPY --from=build-env /app/out .
-ENTRYPOINT ["dotnet", "aspnetcoreapp.dll"]
+COPY --from=build /app .
+ENTRYPOINT ["dotnet", "dotnetapp.dll"]

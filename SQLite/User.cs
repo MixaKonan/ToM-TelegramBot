@@ -18,14 +18,12 @@ namespace TomTelegramBot.SQLite
         {
             return obj is User user &&
                    chatId == user.chatId &&
-                   serverName == user.serverName &&
-                   login == user.login &&
-                   password == user.password;
+                   serverName == user.serverName;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(chatId, serverName, login, password);
+            return HashCode.Combine(chatId, serverName);
         }
     }
 }

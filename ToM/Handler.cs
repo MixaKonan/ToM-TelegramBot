@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Threading;
-using TomTelegramBot.Bot;
-using TomTelegramBot.Video;
-using TomTelegramBot.SQLite;
-using StompLibrary;
-using WebSocketSharp;
-using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using Newtonsoft.Json;
+using StompLibrary;
+using TomTelegramBot.Bot;
+using TomTelegramBot.SQLite;
+using TomTelegramBot.Stomp;
+using TomTelegramBot.Video;
+using WebSocketSharp;
 
 namespace TomTelegramBot.ToM
 {
@@ -56,18 +56,15 @@ namespace TomTelegramBot.ToM
             webSocket.OnOpen += WebSocketOnOpen;
             webSocket.OnClose += WebSocketOnClose;
             webSocket.OnError += WebSocketOnError;
-
-            
         }
 
-        private static void Subscribe(User user, WebSocket webSocket)
+        private void Subscribe(User user, WebSocket webSocket)
         {
             if (Database.IsPresent(user))
             {
                 if (ConnectionIsAlive(user))
                 {
                     TomBot.BotClient.SendTextMessageAsync(user.chatId, "You're already subscribed.");
-                    return;
                 }
 
                 else
@@ -95,13 +92,20 @@ namespace TomTelegramBot.ToM
         {
             UserSocketPairs.TryGetValue(user, out var socket);
 
-            return socket != null && (socket.IsAlive == true ? true : false);
+            return socket != null && socket.IsAlive;
         }
 
-        private static void Connect(User user, WebSocket webSocket)
+        private void Connect(User user, WebSocket webSocket)
         {
+            webSocket.OnMessage += WebSocketOnMessage;
+            webSocket.OnOpen += WebSocketOnOpen;
+            webSocket.OnClose += WebSocketOnClose;
+            webSocket.OnError += WebSocketOnError;
+            
             webSocket.SetCredentials(user.login, user.password, true);
             webSocket.Connect();
+            
+            Console.WriteLine(webSocket.IsAlive);
 
             var connect = new StompMessage("CONNECT") { ["accept-version"] = "1.2", ["host"] = "" };
             webSocket.Send(Serializer.Serialize(connect));
@@ -128,7 +132,6 @@ namespace TomTelegramBot.ToM
 
         private void WebSocketOnOpen(object sender, EventArgs e)
         {
-            
             Console.WriteLine($"---------------\n{DateTime.Now}: Connection has been established.");
 
             TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: "You've been subscribed.");

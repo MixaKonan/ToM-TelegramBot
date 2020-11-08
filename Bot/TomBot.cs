@@ -2,7 +2,6 @@
 using System.Threading;
 using Telegram.Bot;
 using Telegram.Bot.Args;
-using Telegram.Bot.Types;
 using TomTelegramBot.SQLite;
 using TomTelegramBot.ToM;
 
@@ -11,7 +10,7 @@ namespace TomTelegramBot.Bot
     public static class TomBot
     {
         public static readonly TelegramBotClient BotClient =
-            new TelegramBotClient("token");
+            new TelegramBotClient("1445049367:AAEi-hHJAo_YNEtAMeRRF79DDBguRtVXqmg");
 
         private const int ServerName = 1;
         private const int Login = 2;
@@ -59,7 +58,8 @@ namespace TomTelegramBot.Bot
             {
                 BotClient.SendTextMessageAsync(e.Message.Chat.Id,
                     "You can subscribe by using:\n\n/subscribe [server] [login] [password].\n\n" +
-                    "And unsubscribe by:\n\n/unsubscribe [server].\n\nFor example,\n\n /subscribe https://myserver.ru admin password,\n\n  /unsubscribe https://myserver.ru.");
+                    "And unsubscribe by:\n\n/unsubscribe [server].\n\nFor example,\n\n" +
+                    "/subscribe https://myserver.ru admin password,\n\n  /unsubscribe https://myserver.ru.");
             }
         }
 
@@ -71,7 +71,7 @@ namespace TomTelegramBot.Bot
             {
                 try
                 {
-                    var user = new SQLite.User
+                    var user = new User
                     {
                         serverName = ValidateUri(split[ServerName]),
                         login = split[Login],
@@ -101,7 +101,7 @@ namespace TomTelegramBot.Bot
 
             if (split.Length == 2)
             {
-                var user = new SQLite.User
+                var user = new User
                 {
                     serverName = ValidateUri(split[ServerName]),
                     chatId = e.Message.Chat.Id.ToString()
@@ -109,7 +109,7 @@ namespace TomTelegramBot.Bot
                 try
                 {
                     Database.DeleteUser(user);
-                    BotClient.SendTextMessageAsync(chatId: user.chatId, text: $"You've been unsubscribed.");
+                    BotClient.SendTextMessageAsync(chatId: user.chatId, text: "You've been unsubscribed.");
                 }
                 catch (Exception exception)
                 {

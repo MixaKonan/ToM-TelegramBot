@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using StompLibrary;
 
-namespace StompLibrary
+namespace TomTelegramBot.Stomp
 {
     public class StompMessageSerializer
     {
