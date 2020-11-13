@@ -5,6 +5,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using StompLibrary;
 using TomTelegramBot.Bot;
+using TomTelegramBot.Logs;
 using TomTelegramBot.SQLite;
 using TomTelegramBot.Stomp;
 using TomTelegramBot.Video;
@@ -15,6 +16,7 @@ namespace TomTelegramBot.ToM
     public class Handler
     {
         private User _user;
+        private Logs.BotLogger _logger = new Logs.BotLogger();
         private static readonly ConcurrentDictionary<User, WebSocket> UserSocketPairs = new ConcurrentDictionary<User, WebSocket>();
         private static readonly StompMessageSerializer Serializer = new StompMessageSerializer();
 
@@ -48,8 +50,8 @@ namespace TomTelegramBot.ToM
 
             catch(ArgumentException)
             {
-                var Pair = UserSocketPairs.First(pair => pair.Key.chatId == user.chatId && pair.Key.serverName == user.serverName);
-                Subscribe(Pair.Key, Pair.Value);
+                var (key, value) = UserSocketPairs.First(pair => pair.Key.chatId == user.chatId && pair.Key.serverName == user.serverName);
+                Subscribe(key, value);
             }
 
             webSocket.OnMessage += WebSocketOnMessage;
@@ -121,6 +123,8 @@ namespace TomTelegramBot.ToM
             Console.WriteLine($"---------------\n{DateTime.Now}: Connection has been closed. Status code: {e.Code}");
             
             TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: e.ToString());
+            
+            BotLogger.Log($"CLOSEMESSAGE\t{DateTime.Now}\n{e.Reason}, {e.Code}\n");
         }
 
         private void WebSocketOnError(object sender, ErrorEventArgs e)
@@ -128,6 +132,8 @@ namespace TomTelegramBot.ToM
             Console.WriteLine($"---------------\n{DateTime.Now}: {e.Message}");
             
             TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: e.Message);
+            
+            BotLogger.Log($"ERRORMESSAGE\t{DateTime.Now}\n{e.Message}\n");
         }
 
         private void WebSocketOnOpen(object sender, EventArgs e)
@@ -135,11 +141,13 @@ namespace TomTelegramBot.ToM
             Console.WriteLine($"---------------\n{DateTime.Now}: Connection has been established.");
 
             TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: "You've been subscribed.");
+            
+            BotLogger.Log($"OPENMESSAGE\t{DateTime.Now}\nConnection established.\n");
         }
 
         private void WebSocketOnMessage(object sender, MessageEventArgs e)
         {
-            Console.WriteLine($"---------------\n{DateTime.Now}: {e.Data}User: {_user.chatId}");
+            Console.WriteLine($"---------------\n{DateTime.Now}: {e.Data}\nUser: {_user.chatId}");
 
             if (!Serializer.Deserialize(e.Data).Body.IsNullOrEmpty())
             {
@@ -150,6 +158,8 @@ namespace TomTelegramBot.ToM
                                                                                   $"Started by: {json.startedBy}\n" +
                                                                                   $"State: {json.state}");
             }
+            
+            BotLogger.Log($"MESSAGE\t{DateTime.Now}\n{e.Data}\n");
         }
     }
 }
