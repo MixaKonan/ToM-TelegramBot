@@ -109,6 +109,7 @@ namespace TomTelegramBot.Bot
                 try
                 {
                     Database.DeleteUser(user);
+                    Handler.CloseConnection(user);
                     BotClient.SendTextMessageAsync(chatId: user.chatId, text: "You've been unsubscribed.");
                 }
                 catch (Exception exception)

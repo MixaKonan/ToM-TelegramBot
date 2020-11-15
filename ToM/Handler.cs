@@ -5,7 +5,6 @@ using System.Threading;
 using Newtonsoft.Json;
 using StompLibrary;
 using TomTelegramBot.Bot;
-using TomTelegramBot.Logs;
 using TomTelegramBot.SQLite;
 using TomTelegramBot.Stomp;
 using TomTelegramBot.Video;
@@ -16,7 +15,6 @@ namespace TomTelegramBot.ToM
     public class Handler
     {
         private User _user;
-        private Logs.BotLogger _logger = new Logs.BotLogger();
         private static readonly ConcurrentDictionary<User, WebSocket> UserSocketPairs = new ConcurrentDictionary<User, WebSocket>();
         private static readonly StompMessageSerializer Serializer = new StompMessageSerializer();
 
@@ -25,7 +23,6 @@ namespace TomTelegramBot.ToM
             _user = user;
 
             using var webSocket = new WebSocket(user.serverName);
-
             webSocket.OnMessage += WebSocketOnMessage;
             webSocket.OnOpen += WebSocketOnOpen;
             webSocket.OnClose += WebSocketOnClose;
@@ -116,6 +113,12 @@ namespace TomTelegramBot.ToM
             webSocket.Send(Serializer.Serialize(sub));
 
             Thread.Sleep(int.MaxValue);
+        }
+
+        public static void CloseConnection(User user)
+        {
+            UserSocketPairs.TryGetValue(user, out var ws);
+            ws?.Close();
         }
 
         private void WebSocketOnClose(object sender, CloseEventArgs e)
