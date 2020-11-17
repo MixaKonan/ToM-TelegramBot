@@ -23,10 +23,6 @@ namespace TomTelegramBot.ToM
             _user = user;
 
             using var webSocket = new WebSocket(user.serverName);
-            webSocket.OnMessage += WebSocketOnMessage;
-            webSocket.OnOpen += WebSocketOnOpen;
-            webSocket.OnClose += WebSocketOnClose;
-            webSocket.OnError += WebSocketOnError;
 
             UserSocketPairs.TryAdd(user, webSocket);
 
@@ -125,7 +121,7 @@ namespace TomTelegramBot.ToM
         {
             Console.WriteLine($"---------------\n{DateTime.Now}: Connection has been closed. Status code: {e.Code}");
             
-            TomBot.BotClient.SendTextMessageAsync(_user.chatId,e.ToString());
+            TomBot.BotClient.SendTextMessageAsync(_user.chatId, $"Connection has been closed, it was clean: {e.WasClean}. Status code: {e.Code}.");
         }
 
         private void WebSocketOnError(object sender, ErrorEventArgs e)
@@ -144,27 +140,35 @@ namespace TomTelegramBot.ToM
 
         private void WebSocketOnMessage(object sender, MessageEventArgs e)
         {
-            Console.WriteLine($"---------------\n{DateTime.Now}: {e.Data}\nUser: {_user.chatId}");
-
             try
             {
-                if (Serializer.Deserialize(e.Data).Headers == null)
+                var deserializedStompMessage = Serializer.Deserialize(e.Data);
+                var stompMessageBody = deserializedStompMessage.Body;
+
+
+                if (stompMessageBody.Contains("ping"))
+                {
+                    Console.WriteLine("Got ping!");
                     return;
+                }
+
+                Console.WriteLine($"---------------\n{DateTime.Now}\nUser [{_user.chatId}]:\n{e.Data}");
                 
-                if (!Serializer.Deserialize(e.Data).Body.IsNullOrEmpty())
+                if (!stompMessageBody.IsNullOrEmpty())
                 {
                     try
                     {
-                        var json = JsonConvert.DeserializeObject<VideoJson>(Serializer.Deserialize(e.Data).Body);
+                        var json = JsonConvert.DeserializeObject<VideoJson>(stompMessageBody);
                         TomBot.BotClient.SendTextMessageAsync(_user.chatId, $"Vod ID: {json.vodId}\n" +
-                            $"Date: {json.date}\n" +
-                            $"UUID: {json.uuid}\n" +
-                            $"Started by: {json.startedBy}\n" +
-                            $"State: {json.state}");
+                                                                                $"Date: {json.date}\n" +
+                                                                                $"UUID: {json.uuid}\n" +
+                                                                                $"Started by: {json.startedBy}\n" +
+                                                                                $"State: {json.state}");
                     }
-                    catch (JsonReaderException exc)
+
+                    catch (JsonReaderException)
                     {
-                        Console.WriteLine(exc.Message);
+                        
                     }
                 }
             }

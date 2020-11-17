@@ -79,7 +79,7 @@ namespace TomTelegramBot.SQLite
 
             while (reader.Read())
             {
-                var user = new User()
+                var user = new User
                 {
                     chatId = reader["chatId"].ToString(),
                     serverName = reader["serverName"].ToString(),

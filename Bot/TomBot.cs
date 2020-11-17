@@ -10,7 +10,7 @@ namespace TomTelegramBot.Bot
     public static class TomBot
     {
         public static readonly TelegramBotClient BotClient =
-            new TelegramBotClient("1445049367:AAHwMoWiI3jxzWxfMN0WAlnyPXxs8FZ7K6g"/*Environment.GetEnvironmentVariable("TGTOKEN")*/);
+            new TelegramBotClient(Environment.GetEnvironmentVariable("TGTOKEN"));
 
         private const int ServerName = 1;
         private const int Login = 2;
@@ -86,12 +86,12 @@ namespace TomTelegramBot.Bot
                 }
                 catch (ArgumentException exception)
                 {
-                    BotClient.SendTextMessageAsync(chatId: e.Message.Chat.Id, text: exception.Message);
+                    BotClient.SendTextMessageAsync(e.Message.Chat.Id,exception.Message);
                 }
             }
             else
             {
-                BotClient.SendTextMessageAsync(chatId: e.Message.Chat.Id, "Some error.");
+                BotClient.SendTextMessageAsync(e.Message.Chat.Id, "Some error.");
             }
         }
 
@@ -110,16 +110,16 @@ namespace TomTelegramBot.Bot
                 {
                     Database.DeleteUser(user);
                     Handler.CloseConnection(user);
-                    BotClient.SendTextMessageAsync(chatId: user.chatId, text: "You've been unsubscribed.");
+                    BotClient.SendTextMessageAsync(user.chatId, "You've been unsubscribed.");
                 }
                 catch (Exception exception)
                 {
-                    BotClient.SendTextMessageAsync(chatId: user.chatId, text: $"Deletion error occured.\n{exception.Message}");
+                    BotClient.SendTextMessageAsync(user.chatId, $"Deletion error occured.\n{exception.Message}");
                 }
             }
             else
             {
-                BotClient.SendTextMessageAsync(chatId: e.Message.Chat.Id, "Some error.");
+                BotClient.SendTextMessageAsync(e.Message.Chat.Id, "Some error.");
             }
         }
 
