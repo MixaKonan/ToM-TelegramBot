@@ -82,7 +82,7 @@ namespace TomTelegramBot.ToM
 
                 catch (Exception exception)
                 {
-                    TomBot.BotClient.SendTextMessageAsync(chatId: user.chatId, text: $"An error occured.\n{exception.Message}");
+                    TomBot.BotClient.SendTextMessageAsync(user.chatId,$"An error occured.\n{exception.Message}");
                 }
             }
         }
@@ -125,21 +125,21 @@ namespace TomTelegramBot.ToM
         {
             Console.WriteLine($"---------------\n{DateTime.Now}: Connection has been closed. Status code: {e.Code}");
             
-            TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: e.ToString());
+            TomBot.BotClient.SendTextMessageAsync(_user.chatId,e.ToString());
         }
 
         private void WebSocketOnError(object sender, ErrorEventArgs e)
         {
             Console.WriteLine($"---------------\n{DateTime.Now}: {e.Message}");
             
-            TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: e.Message);
+            TomBot.BotClient.SendTextMessageAsync(_user.chatId,e.Message);
         }
 
         private void WebSocketOnOpen(object sender, EventArgs e)
         {
             Console.WriteLine($"---------------\n{DateTime.Now}: Connection has been established.");
 
-            TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: "You've been subscribed.");
+            TomBot.BotClient.SendTextMessageAsync(_user.chatId,"You've been subscribed.");
         }
 
         private void WebSocketOnMessage(object sender, MessageEventArgs e)
@@ -148,20 +148,24 @@ namespace TomTelegramBot.ToM
 
             try
             {
+                if (Serializer.Deserialize(e.Data).Headers == null)
+                    return;
+                
                 if (!Serializer.Deserialize(e.Data).Body.IsNullOrEmpty())
                 {
-                    if (Serializer.Deserialize(e.Data).Body == "ping")
+                    try
                     {
-                        Console.WriteLine("Got ping.");
-                        return;
+                        var json = JsonConvert.DeserializeObject<VideoJson>(Serializer.Deserialize(e.Data).Body);
+                        TomBot.BotClient.SendTextMessageAsync(_user.chatId, $"Vod ID: {json.vodId}\n" +
+                            $"Date: {json.date}\n" +
+                            $"UUID: {json.uuid}\n" +
+                            $"Started by: {json.startedBy}\n" +
+                            $"State: {json.state}");
                     }
-    
-                    var json = JsonConvert.DeserializeObject<VideoJson>(Serializer.Deserialize(e.Data).Body);
-                    TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: $"Vod ID: {json.vodId}\n" +
-                        $"Date: {json.date}\n" +
-                        $"UUID: {json.uuid}\n" +
-                        $"Started by: {json.startedBy}\n" +
-                        $"State: {json.state}");
+                    catch (JsonReaderException exc)
+                    {
+                        Console.WriteLine(exc.Message);
+                    }
                 }
             }
             

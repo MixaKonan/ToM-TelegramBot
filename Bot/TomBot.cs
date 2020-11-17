@@ -10,7 +10,7 @@ namespace TomTelegramBot.Bot
     public static class TomBot
     {
         public static readonly TelegramBotClient BotClient =
-            new TelegramBotClient(Environment.GetEnvironmentVariable("TGTOKEN"));
+            new TelegramBotClient("1445049367:AAHwMoWiI3jxzWxfMN0WAlnyPXxs8FZ7K6g"/*Environment.GetEnvironmentVariable("TGTOKEN")*/);
 
         private const int ServerName = 1;
         private const int Login = 2;
