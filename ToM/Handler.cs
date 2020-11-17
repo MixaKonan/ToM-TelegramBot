@@ -152,15 +152,30 @@ namespace TomTelegramBot.ToM
         {
             Console.WriteLine($"---------------\n{DateTime.Now}: {e.Data}\nUser: {_user.chatId}");
 
-            if (!Serializer.Deserialize(e.Data).Body.IsNullOrEmpty())
+            try
             {
-                var json = JsonConvert.DeserializeObject<VideoJson>(Serializer.Deserialize(e.Data).Body);
-                TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: $"Vod ID: {json.vodId}\n" +
-                                                                                  $"Date: {json.date}\n" +
-                                                                                  $"UUID: {json.uuid}\n" +
-                                                                                  $"Started by: {json.startedBy}\n" +
-                                                                                  $"State: {json.state}");
+                if (!Serializer.Deserialize(e.Data).Body.IsNullOrEmpty())
+                {
+                    if (Serializer.Deserialize(e.Data).Body == "ping")
+                    {
+                        Console.WriteLine("Got ping.");
+                        return;
+                    }
+    
+                    var json = JsonConvert.DeserializeObject<VideoJson>(Serializer.Deserialize(e.Data).Body);
+                    TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: $"Vod ID: {json.vodId}\n" +
+                        $"Date: {json.date}\n" +
+                        $"UUID: {json.uuid}\n" +
+                        $"Started by: {json.startedBy}\n" +
+                        $"State: {json.state}");
+                }
             }
+            
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+            
             
             //BotLogger.Log($"MESSAGE\t{DateTime.Now}\n{e.Data}\n");
         }
