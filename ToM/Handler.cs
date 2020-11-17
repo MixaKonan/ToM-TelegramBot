@@ -126,8 +126,6 @@ namespace TomTelegramBot.ToM
             Console.WriteLine($"---------------\n{DateTime.Now}: Connection has been closed. Status code: {e.Code}");
             
             TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: e.ToString());
-            
-            //BotLogger.Log($"CLOSEMESSAGE\t{DateTime.Now}\n{e.Reason}, {e.Code}\n");
         }
 
         private void WebSocketOnError(object sender, ErrorEventArgs e)
@@ -135,8 +133,6 @@ namespace TomTelegramBot.ToM
             Console.WriteLine($"---------------\n{DateTime.Now}: {e.Message}");
             
             TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: e.Message);
-            
-            //BotLogger.Log($"ERRORMESSAGE\t{DateTime.Now}\n{e.Message}\n");
         }
 
         private void WebSocketOnOpen(object sender, EventArgs e)
@@ -144,8 +140,6 @@ namespace TomTelegramBot.ToM
             Console.WriteLine($"---------------\n{DateTime.Now}: Connection has been established.");
 
             TomBot.BotClient.SendTextMessageAsync(chatId: _user.chatId, text: "You've been subscribed.");
-            
-            //BotLogger.Log($"OPENMESSAGE\t{DateTime.Now}\nConnection established.\n");
         }
 
         private void WebSocketOnMessage(object sender, MessageEventArgs e)
@@ -175,9 +169,6 @@ namespace TomTelegramBot.ToM
             {
                 Console.WriteLine(exception);
             }
-            
-            
-            //BotLogger.Log($"MESSAGE\t{DateTime.Now}\n{e.Data}\n");
         }
     }
 }

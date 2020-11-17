@@ -25,6 +25,15 @@
 
     <ItemGroup>
       <Compile Remove="Stomp\StompFrame.cs" />
+      <Compile Remove="Logs\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Logs\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Logs\**" />
     </ItemGroup>
 
 </Project>
