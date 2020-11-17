@@ -10,7 +10,7 @@ namespace TomTelegramBot.Bot
     public static class TomBot
     {
         public static readonly TelegramBotClient BotClient =
-            new TelegramBotClient(Environment.GetEnvironmentVariable("TGTOKEN"));
+            new TelegramBotClient("1445049367:AAHwMoWiI3jxzWxfMN0WAlnyPXxs8FZ7K6g"/*Environment.GetEnvironmentVariable("TGTOKEN")*/);
 
         private const int ServerName = 1;
         private const int Login = 2;
@@ -110,6 +110,7 @@ namespace TomTelegramBot.Bot
                 {
                     Database.DeleteUser(user);
                     Handler.CloseConnection(user);
+                    Handler.DeleteFromDictionary(user);
                     BotClient.SendTextMessageAsync(user.chatId, "You've been unsubscribed.");
                 }
                 catch (Exception exception)
@@ -125,12 +126,14 @@ namespace TomTelegramBot.Bot
 
         private static string ValidateUri(string uriString)
         {
-            if (!IsValidUri(uriString))
+            var _uriString = uriString + "/status";
+            
+            if (!IsValidUri(_uriString))
             {
                 throw new ArgumentException("Wrong uri.");
             }
 
-            var uri = new Uri(uriString);
+            var uri = new Uri(_uriString);
 
             return uri.Scheme == Uri.UriSchemeHttps
                 ? uri.AbsoluteUri.Replace("https", "wss")

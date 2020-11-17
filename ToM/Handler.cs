@@ -18,6 +18,11 @@ namespace TomTelegramBot.ToM
         private static readonly ConcurrentDictionary<User, WebSocket> UserSocketPairs = new ConcurrentDictionary<User, WebSocket>();
         private static readonly StompMessageSerializer Serializer = new StompMessageSerializer();
 
+        public static void DeleteFromDictionary(User user)
+        {
+            UserSocketPairs.TryRemove(user, out var ws);
+        }
+
         public void SubscribeOnStart(User user)
         {
             _user = user;
