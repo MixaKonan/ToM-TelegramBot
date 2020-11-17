@@ -1,6 +1,7 @@
 version: '3.3'
 services:
     tombot:
+        build: .
         environment:
             - 'TGTOKEN=VALUE'
         image: 'mixakonan/tombot:1.0'
