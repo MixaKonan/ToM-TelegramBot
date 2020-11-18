@@ -172,7 +172,8 @@ namespace TomTelegramBot.ToM
                                                                                 $"Date: {json.date}\n" +
                                                                                 $"UUID: {json.uuid}\n" +
                                                                                 $"Started by: {json.startedBy}\n" +
-                                                                                $"State: {json.state}");
+                                                                                $"State: {json.state}\n" +
+                                                                                $"twitch.tv/videos/{json.vodId}");
                     }
 
                     catch (JsonReaderException)
