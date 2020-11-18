@@ -154,18 +154,14 @@ namespace TomTelegramBot.ToM
 
                 if (stompMessageBody.Contains("ping"))
                 {
-<<<<<<< HEAD
                     Console.WriteLine($"---------------\n{DateTime.Now}: Got ping!");
-=======
-                    Console.WriteLine("Got ping");
->>>>>>> a333020c1f7182c6cdf4203b68615119d2207124
                     UserSocketPairs.TryGetValue(_user, out var webSocket);
                     var pingAnswer = new StompMessage("MESSAGE", "answer") { ["destination"] = "/topic/status", ["message-id"] = messageId++.ToString(), ["content-type"] = "text/plain" };
                     webSocket.Send(Serializer.Serialize(pingAnswer));
                     return;
                 }
 
-                if(stompMessageBody.Contains("answer"))
+                if (stompMessageBody.Contains("answer"))
                 {
                     Console.WriteLine($"---------------\n{DateTime.Now}: Answer sent!");
                     return;
