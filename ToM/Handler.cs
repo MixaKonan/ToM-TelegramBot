@@ -153,11 +153,10 @@ namespace TomTelegramBot.ToM
 
                 if (stompMessageBody.Contains("ping"))
                 {
-                    Console.WriteLine("Got ping!");
+                    Console.WriteLine(e.Data);
                     UserSocketPairs.TryGetValue(_user, out var webSocket);
-                    var pingAnswer = new StompMessage("MESSAGE") { ["accept-version"] = "1.2", ["host"] = "" };
+                    var pingAnswer = new StompMessage("MESSAGE", "answer") { ["destination"] = "/topic/status"};
                     webSocket.Send(Serializer.Serialize(pingAnswer));
-                    Console.WriteLine("Ping answered!");
                     return;
                 }
 
@@ -168,7 +167,7 @@ namespace TomTelegramBot.ToM
                     try
                     {
                         var json = JsonConvert.DeserializeObject<VideoJson>(stompMessageBody);
-                        TomBot.BotClient.SendTextMessageAsync(_user.chatId, $"Vod ID: {json.vodId}\n" +
+                        TomBot.BotClient.SendTextMessageAsync(_user.chatId,     $"Vod ID: {json.vodId}\n" +
                                                                                 $"Date: {json.date}\n" +
                                                                                 $"UUID: {json.uuid}\n" +
                                                                                 $"Started by: {json.startedBy}\n" +
