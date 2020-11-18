@@ -15,6 +15,7 @@ namespace TomTelegramBot.ToM
     public class Handler
     {
         private User _user;
+        private static long messageId = 0;
         private static readonly ConcurrentDictionary<User, WebSocket> UserSocketPairs = new ConcurrentDictionary<User, WebSocket>();
         private static readonly StompMessageSerializer Serializer = new StompMessageSerializer();
 
@@ -153,10 +154,16 @@ namespace TomTelegramBot.ToM
 
                 if (stompMessageBody.Contains("ping"))
                 {
-                    Console.WriteLine(e.Data);
+                    Console.WriteLine($"---------------\n{DateTime.Now}: Got ping!");
                     UserSocketPairs.TryGetValue(_user, out var webSocket);
-                    var pingAnswer = new StompMessage("MESSAGE", "answer") { ["destination"] = "/topic/status"};
+                    var pingAnswer = new StompMessage("MESSAGE", "answer") { ["destination"] = "/topic/status", ["message-id"] = messageId++.ToString(), ["content-type"] = "text/plain" };
                     webSocket.Send(Serializer.Serialize(pingAnswer));
+                    return;
+                }
+
+                if(stompMessageBody.Contains("answer"))
+                {
+                    Console.WriteLine($"---------------\n{DateTime.Now}: Answer sent!");
                     return;
                 }
 
