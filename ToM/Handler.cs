@@ -153,6 +153,7 @@ namespace TomTelegramBot.ToM
 
                 if (stompMessageBody.Contains("ping"))
                 {
+                    Console.WriteLine("Got ping");
                     UserSocketPairs.TryGetValue(_user, out var webSocket);
                     var pingAnswer = new StompMessage("MESSAGE", "answer") { ["destination"] = "/topic/status"};
                     webSocket.Send(Serializer.Serialize(pingAnswer));
