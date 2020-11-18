@@ -154,6 +154,10 @@ namespace TomTelegramBot.ToM
                 if (stompMessageBody.Contains("ping"))
                 {
                     Console.WriteLine("Got ping!");
+                    UserSocketPairs.TryGetValue(_user, out var webSocket);
+                    var pingAnswer = new StompMessage("MESSAGE") { ["accept-version"] = "1.2", ["host"] = "" };
+                    webSocket.Send(Serializer.Serialize(pingAnswer));
+                    Console.WriteLine("Ping answered!");
                     return;
                 }
 
